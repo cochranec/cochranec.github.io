@@ -1,0 +1,256 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>MakeEVPSC</title><meta name="generator" content="MATLAB 7.14"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-02-01"><meta name="DC.source" content="MakeEVPSC.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, tt, code { font-size:12px; }
+pre { margin:0px 0px 20px; }
+pre.error { color:red; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Specify Crystal and Specimen Symmetries</a></li><li><a href="#3">Import the Data</a></li><li><a href="#4">Plot the Input Data as Contours</a></li><li><a href="#5">Calculate ODFs and Plot Pole Figures Reconstructed from PDFs</a></li><li><a href="#6">Output a file that can be used as EVPSC input texture</a></li></ul></div><pre class="codeinput">betaFrac = 0.1;
+nPoints = 10000;
+</pre><h2>Specify Crystal and Specimen Symmetries<a name="2"></a></h2><pre class="codeinput"><span class="comment">% crystal symmetry</span>
+hexSym = crystalSymmetry(<span class="string">'6/mmm'</span>, [3.23 3.23 5.15]);
+cubSym = crystalSymmetry(<span class="string">'m-3m'</span>, [3.6 3.6 3.6]);
+<span class="comment">% plotting convention</span>
+<span class="comment">%   plotx2north aligns pole figures identical to the printout of the CNBC</span>
+<span class="comment">%   executables</span>
+plotx2north
+
+<span class="comment">% Specify File Names</span>
+<span class="comment">% path to files</span>
+pname = [<span class="string">'/home/chris/Chalk/FeiData/'</span>];
+
+<span class="comment">% which files to be imported</span>
+fname = {<span class="keyword">...</span>
+    [pname <span class="string">'(0002)tube'</span>], <span class="keyword">...</span>
+    [pname <span class="string">'(10-10)tube'</span>], <span class="keyword">...</span>
+    [pname <span class="string">'(10-11)tube'</span>], <span class="keyword">...</span>
+    };
+
+<span class="comment">% Specify Miller Indices</span>
+h = { <span class="keyword">...</span>
+    Miller(0,0,1,hexSym), <span class="keyword">...</span>
+    Miller(1,0,0,hexSym), <span class="keyword">...</span>
+    Miller(1,0,1,hexSym), <span class="keyword">...</span>
+    };
+
+fnameBeta={<span class="keyword">...</span>
+    [pname <span class="string">'beta(110)tube'</span>]
+    };
+hB = { <span class="keyword">...</span>
+    Miller(1,1,0,cubSym)
+    };
+</pre><h2>Import the Data<a name="3"></a></h2><pre class="codeinput">pf = loadPoleFigure(fname, h,hexSym,<span class="string">'ColumnNames'</span>, { <span class="string">'Polar Angle'</span> <span class="string">'Azimuth Angle'</span> <span class="string">'Intensity'</span>});
+pfB =loadPoleFigure(fnameBeta,hB,cubSym,<span class="string">'ColumnNames'</span>, { <span class="string">'Polar Angle'</span> <span class="string">'Azimuth Angle'</span> <span class="string">'Intensity'</span>});
+</pre><h2>Plot the Input Data as Contours<a name="4"></a></h2><pre class="codeinput">figure(1), plot(pf,<span class="string">'antipodal'</span>,<span class="string">'contourf'</span>)
+figure(2), plot(pfB,<span class="string">'antipodal'</span>,<span class="string">'contourf'</span>)
+</pre><img vspace="5" hspace="5" src="MakeEVPSC_01.png" alt=""> <img vspace="5" hspace="5" src="MakeEVPSC_02.png" alt=""> <h2>Calculate ODFs and Plot Pole Figures Reconstructed from PDFs<a name="5"></a></h2><pre class="codeinput">odf = calcODF(pf,<span class="string">'halfwidth'</span>,5*degree);
+odfB = calcODF(pfB,<span class="string">'halfwidth'</span>,5*degree);
+
+figure(1), plotPDF(odf,h,<span class="string">'antipodal'</span>,<span class="string">'contourf'</span>,0:5)
+figure(2), plotPDF(odfB,hB,<span class="string">'antipodal'</span>,<span class="string">'contourf'</span>,0:5)
+</pre><pre class="codeoutput">------ MTEX -- PDF to ODF inversion ------------------
+Call c-routine
+initialize solver
+start iteration
+error: 8.0339E-01 4.2962E-01 3.0755E-01 2.1701E-01 1.6675E-01 1.4965E-01 1.4483E-01 1.4218E-01 1.4011E-01 1.3848E-01 1.3706E-01 
+Finished PDF-ODF inversion.
+error: 1.3706E-01
+alpha: 1.0100E+00 9.1974E-01 9.4143E-01 
+required time: 8s
+------ MTEX -- PDF to ODF inversion ------------------
+Call c-routine
+initialize solver
+start iteration
+error: 3.5764E-01 2.3824E-01 1.7519E-01 1.4985E-01 1.4074E-01 1.3455E-01 1.3186E-01 1.2977E-01 1.2810E-01 1.2668E-01 1.2538E-01 
+Finished PDF-ODF inversion.
+error: 1.2538E-01
+alpha: 9.2951E-01 
+required time: 3s
+</pre><img vspace="5" hspace="5" src="MakeEVPSC_03.png" alt=""> <img vspace="5" hspace="5" src="MakeEVPSC_04.png" alt=""> <h2>Output a file that can be used as EVPSC input texture<a name="6"></a></h2><p>The nPoints variable can be changed to calculate a different number of final grains in the file.  This number is a "best try" since not all numbers will be able to produce reasonable symmetries and coverage of orientation space.</p><pre class="codeinput">alphaODF = odf;
+betaODF = odfB;
+outputDir = pname;
+S3G = equispacedSO3Grid(hexSym,-1,<span class="string">'points'</span>,nPoints);
+S3Gb = equispacedSO3Grid(cubSym,-1,<span class="string">'points'</span>,nPoints*betaFrac);
+
+export(alphaODF,[outputDir <span class="string">'tempA.tex'</span>],S3G,<span class="string">'generic'</span>,<span class="string">'ZXZ'</span>);
+export(betaODF,[outputDir <span class="string">'tempB.tex'</span>],S3Gb,<span class="string">'generic'</span>,<span class="string">'ZXZ'</span>);
+
+<span class="comment">% Clean up the EVPSC input file(s)</span>
+a = dlmread([outputDir <span class="string">'tempA.tex'</span>],<span class="string">' '</span>,6,0);
+b = dlmread([outputDir <span class="string">'tempB.tex'</span>],<span class="string">' '</span>,6,0);
+delete([outputDir <span class="string">'tempA.tex'</span>]);
+delete([outputDir <span class="string">'tempB.tex'</span>]);
+a(:,4) = a(:,4) / sum(a(:,4)) * (1 - betaFrac);
+b(:,4) = b(:,4) / sum(b(:,4)) * (betaFrac);
+
+<span class="comment">% Remove orientations with no intensity</span>
+emptyRows = a(:,4) &lt; 1e-8;
+a(emptyRows,:) = [];
+
+emptyRows = b(:,4) &lt; 1e-8;
+b(emptyRows,:) = [];
+
+<span class="comment">% Integrate phase number</span>
+<span class="comment">%B = [ones(nR, 1); ones(nRB, 1)];</span>
+[nR nC] = size(a);
+[nRB nCB] = size(b);
+
+outputM = [[ones(nR, 1); 2*ones(nRB, 1)] [a;b]];
+fOut = [outputDir <span class="string">'MTEX.tex'</span>];
+fid = fopen(fOut,<span class="string">'w'</span>);
+fprintf(fid,<span class="string">'AXES OF THE REPRESENTATIVE ELLIPSOID\n1\t1\t1\t\nDISCRETE TEXTURE FROM ODF (MTEX)\n R\t%d\n'</span>,(nR+nRB));
+<span class="keyword">for</span> i = 1:(nR+nRB)
+    fprintf(fid,<span class="string">'%d\t%.2f\t%.2f\t%.2f\t%.7f\n'</span>,outputM(i,:));
+<span class="keyword">end</span>
+<span class="comment">%dlmwrite(fOut,outputM,'delimiter','\t','-append',  'precision', '%d%.1f%.1f%.1f%.5f');</span>
+disp([<span class="string">'EPSC friendly texture saved to '''</span> fOut <span class="string">'''.'</span>])
+</pre><pre class="codeoutput">EPSC friendly texture saved to '/home/chris/Chalk/FeiData/MTEX.tex'.
+</pre><p class="footer"><br>
+      Published with MATLAB&reg; 7.14<br></p></div><!--
+##### SOURCE BEGIN #####
+betaFrac = 0.1;
+nPoints = 10000;
+%% Specify Crystal and Specimen Symmetries
+
+% crystal symmetry
+hexSym = crystalSymmetry('6/mmm', [3.23 3.23 5.15]);
+cubSym = crystalSymmetry('m-3m', [3.6 3.6 3.6]);
+% plotting convention
+%   plotx2north aligns pole figures identical to the printout of the CNBC
+%   executables
+plotx2north
+
+% Specify File Names
+% path to files
+pname = ['/home/chris/Chalk/FeiData/'];
+
+% which files to be imported
+fname = {...
+    [pname '(0002)tube'], ...
+    [pname '(10-10)tube'], ...
+    [pname '(10-11)tube'], ...
+    };
+
+% Specify Miller Indices
+h = { ...
+    Miller(0,0,1,hexSym), ...
+    Miller(1,0,0,hexSym), ...
+    Miller(1,0,1,hexSym), ...
+    };
+
+fnameBeta={...
+    [pname 'beta(110)tube']
+    };
+hB = { ...
+    Miller(1,1,0,cubSym)
+    };
+
+%% Import the Data
+pf = loadPoleFigure(fname, h,hexSym,'ColumnNames', { 'Polar Angle' 'Azimuth Angle' 'Intensity'});
+pfB =loadPoleFigure(fnameBeta,hB,cubSym,'ColumnNames', { 'Polar Angle' 'Azimuth Angle' 'Intensity'});
+%% Plot the Input Data as Contours
+figure(1), plot(pf,'antipodal','contourf')
+figure(2), plot(pfB,'antipodal','contourf')
+%% Calculate ODFs and Plot Pole Figures Reconstructed from PDFs
+odf = calcODF(pf,'halfwidth',5*degree);
+odfB = calcODF(pfB,'halfwidth',5*degree);
+
+figure(1), plotPDF(odf,h,'antipodal','contourf',0:5)
+figure(2), plotPDF(odfB,hB,'antipodal','contourf',0:5)
+%% Output a file that can be used as EVPSC input texture
+% The nPoints variable can be changed to calculate a different number of
+% final grains in the file.  This number is a "best try" since not all
+% numbers will be able to produce reasonable symmetries and coverage of
+% orientation space.
+
+alphaODF = odf;
+betaODF = odfB;
+outputDir = pname;
+S3G = equispacedSO3Grid(hexSym,-1,'points',nPoints);
+S3Gb = equispacedSO3Grid(cubSym,-1,'points',nPoints*betaFrac);
+
+export(alphaODF,[outputDir 'tempA.tex'],S3G,'generic','ZXZ');
+export(betaODF,[outputDir 'tempB.tex'],S3Gb,'generic','ZXZ');
+
+% Clean up the EVPSC input file(s)
+a = dlmread([outputDir 'tempA.tex'],' ',6,0);
+b = dlmread([outputDir 'tempB.tex'],' ',6,0);
+delete([outputDir 'tempA.tex']);
+delete([outputDir 'tempB.tex']);
+a(:,4) = a(:,4) / sum(a(:,4)) * (1 - betaFrac);
+b(:,4) = b(:,4) / sum(b(:,4)) * (betaFrac);
+
+% Remove orientations with no intensity
+emptyRows = a(:,4) < 1e-8;
+a(emptyRows,:) = [];
+
+emptyRows = b(:,4) < 1e-8;
+b(emptyRows,:) = [];
+
+% Integrate phase number
+%B = [ones(nR, 1); ones(nRB, 1)];
+[nR nC] = size(a);
+[nRB nCB] = size(b);
+
+outputM = [[ones(nR, 1); 2*ones(nRB, 1)] [a;b]];
+fOut = [outputDir 'MTEX.tex'];
+fid = fopen(fOut,'w');
+fprintf(fid,'AXES OF THE REPRESENTATIVE ELLIPSOID\n1\t1\t1\t\nDISCRETE TEXTURE FROM ODF (MTEX)\n R\t%d\n',(nR+nRB));
+for i = 1:(nR+nRB)
+    fprintf(fid,'%d\t%.2f\t%.2f\t%.2f\t%.7f\n',outputM(i,:));
+end
+%dlmwrite(fOut,outputM,'delimiter','\t','-append',  'precision', '%d%.1f%.1f%.1f%.5f');
+disp(['EPSC friendly texture saved to ''' fOut '''.'])
+
+##### SOURCE END #####
+--></body></html>
