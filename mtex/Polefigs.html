@@ -1,0 +1,421 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Polefigs</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-02-10"><meta name="DC.source" content="Polefigs.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Plotting pole figures from EBSD data</a></li><li><a href="#3">Inverse pole figures</a></li><li><a href="#4">Calculating an Orientation Distribution Function from EBSD data</a></li></ul></div><pre class="codeinput">clear <span class="string">all</span>
+import_excel_data;
+</pre><h2>Plotting pole figures from EBSD data<a name="2"></a></h2><pre class="codeinput"><span class="comment">%We can take the orientaion data from an EBSD structure and use it to</span>
+<span class="comment">%generate pole figures. First, define the crystallographic directions you'd</span>
+<span class="comment">%like to create pole Figures for, then use the plotPDF command as below:</span>
+p1=Miller(0,0,0,2,ebsd(<span class="string">'Zirconium'</span>).CS);
+p2=Miller(1,0,-1,0,ebsd(<span class="string">'Zirconium'</span>).CS);
+figure(1)
+plotPDF(ebsd(<span class="string">'Zirconium'</span>).orientations,[p1 p2])
+
+<span class="comment">%The plot we just made will randomly plot a certain number of points from</span>
+<span class="comment">%the ebsd map onto the pole figure.  If you want to plot all othe points,</span>
+<span class="comment">%you can do so by setting the 'points' option to 'all'.  It's also useful</span>
+<span class="comment">%to change the marker size</span>
+figure(2)
+plotPDF(ebsd(<span class="string">'Zirconium'</span>).orientations,[p1 p2],<span class="string">'points'</span>,<span class="string">'all'</span>,<span class="string">'markerSize'</span>,3)
+
+<span class="comment">%Having all these points makes it difficult to see what's going on, and</span>
+<span class="comment">%it's oftentimes more useful to display PF's as contour plots.  The</span>
+<span class="comment">%contourf option will plot the PF as a filled contour plot, and the option</span>
+<span class="comment">%after it sets the scale of the contours, in this case from 0 to 6 mrd in</span>
+<span class="comment">%steps of 1.  If you prefer unfilled plots you can use contour instead of</span>
+<span class="comment">%contourf</span>
+
+figure(3)
+plotPDF(ebsd(<span class="string">'Zirconium'</span>).orientations,[p1 p2],<span class="string">'contourf'</span>,0:1:6)
+colorbar;
+</pre><pre class="codeoutput">  I'm plotting 416 random orientations out of 213854 given orientations
+  You can specify the the number points by the option "points".
+  The option "all" ensures that all data are plotted
+</pre><img vspace="5" hspace="5" src="Polefigs_01.png" alt=""> <img vspace="5" hspace="5" src="Polefigs_02.png" alt=""> <img vspace="5" hspace="5" src="Polefigs_03.png" alt=""> <h2>Inverse pole figures<a name="3"></a></h2><pre class="codeinput"><span class="comment">%If you want to plot an inverse pole figure to see which crystal</span>
+<span class="comment">%orientations are aligned along a given sample direction, MTEX can do it</span>
+<span class="comment">%quite easily.  The 3 figures below plot inverse pole figures for the</span>
+<span class="comment">%x,y, and z directions of the ebsd map.  Here we also show that you can</span>
+<span class="comment">%use mean orientation data from grains instead of considering each</span>
+<span class="comment">%individual pixel.</span>
+
+[grains,ebsd.grainId,ebsd.mis2mean] = calcGrains(ebsd(<span class="string">'indexed'</span>),<span class="string">'angle'</span>,5*degree);
+
+figure(1)
+plotIPDF(grains(grains.phase==1).meanOrientation,xvector,<span class="string">'contourf'</span>)
+colorbar;
+
+figure(2)
+plotIPDF(grains(grains.phase==1).meanOrientation,yvector,<span class="string">'contourf'</span>)
+colorbar;
+
+figure(3)
+plotIPDF(grains(grains.phase==1).meanOrientation,zvector,<span class="string">'contourf'</span>)
+colorbar;
+
+<span class="comment">%If you want to plot an IPF for an arbitrary direction you can do that as</span>
+<span class="comment">%well.  The following code will create an IPF for a direction halfway</span>
+<span class="comment">%between the x and y directions (so going diagonally across the map)</span>
+
+dir=vector3d(1,1,0);
+figure(4)
+plotIPDF(grains(grains.phase==1).meanOrientation,dir,<span class="string">'contourf'</span>)
+colorbar;
+
+<span class="comment">%All of the figures here were done for the alpha phase, which is phase #1</span>
+<span class="comment">%in grains.  To get figures for the beta phase, just change the</span>
+<span class="comment">%(grains.phase==1) to (grains.phase==2).</span>
+</pre><img vspace="5" hspace="5" src="Polefigs_04.png" alt=""> <img vspace="5" hspace="5" src="Polefigs_05.png" alt=""> <img vspace="5" hspace="5" src="Polefigs_06.png" alt=""> <img vspace="5" hspace="5" src="Polefigs_07.png" alt=""> <h2>Calculating an Orientation Distribution Function from EBSD data<a name="4"></a></h2><pre class="codeinput">alphaODF=calcODF(ebsd(<span class="string">'Zirconium'</span>).orientations,<span class="string">'halfwidth'</span>,10*degree)
+
+betaODF=calcODF(ebsd(<span class="string">'ZirconiumBeta'</span>).orientations,<span class="string">'halfwidth'</span>,10*degree)
+
+<span class="comment">%An ODF contains full information about the distribution of orientations,</span>
+<span class="comment">%instead of just information about a single crystal direction as in a pole</span>
+<span class="comment">%figure.</span>
+
+<span class="comment">%Let's take another look at the pole figures for our data, this time both</span>
+<span class="comment">%alpha and beta phasess:</span>
+
+p1=Miller(0,0,0,2,ebsd(<span class="string">'Zirconium'</span>).CS);
+p2=Miller(1,0,-1,0,ebsd(<span class="string">'Zirconium'</span>).CS);
+
+p1beta=Miller(1,1,1,ebsd(<span class="string">'ZirconiumBeta'</span>).CS);
+p2beta=Miller(1,-1,0,ebsd(<span class="string">'ZirconiumBeta'</span>).CS);
+
+figure(1)
+plotPDF(ebsd(<span class="string">'Zirconium'</span>).orientations,[p1 p2],<span class="string">'contourf'</span>,0:1:6)
+colorbar;
+
+figure(2)
+plotPDF(ebsd(<span class="string">'ZirconiumBeta'</span>).orientations,[p1beta p2beta],<span class="string">'contourf'</span>,0:1:3)
+colorbar;
+
+<span class="comment">%It seems like the pole figure is slightly tilted, this is pretty common</span>
+<span class="comment">%since EBSD samples have to be aligned by hand in the SEM and might be off</span>
+<span class="comment">%by a few degrees.  We can use an MTEX function on the ODF to corect this.</span>
+<span class="comment">%The centerSpecimen function takes in an ODF and attempts to find and align</span>
+<span class="comment">%the sample symmetry.  It returns a rotated ODF along with information</span>
+<span class="comment">%about the rotation, which I've assigned to the variable tilt.</span>
+
+[cor_alphaODF, rotAlpha]=centerSpecimen(alphaODF);
+[cor_betaODF, rotBeta]=centerSpecimen(betaODF);
+
+<span class="comment">%We now have corrected ODF's for the alpha and beta phases, as well as the</span>
+<span class="comment">%rotations applied to them.  Since both are in the same sample, both</span>
+<span class="comment">%rotations should be the same, so let's check:</span>
+
+rotAlpha
+
+rotBeta
+
+<span class="comment">%We can see from the euler angle output of the rotations that they don't</span>
+<span class="comment">%look like they agree very well. Let's check how much they've been rotated</span>
+<span class="comment">%by, and the axes about which they're being rotated.</span>
+
+rotAlpha.angle/degree
+
+rotAlpha.axis
+
+rotBeta.angle/degree
+
+rotBeta.axis
+
+<span class="comment">%We can see that the alpha phase has been rotated by 25 degrees about an</span>
+<span class="comment">%axis close to the x axis, while the beta phase is being rotated by 16</span>
+<span class="comment">%degrees, mostly about the y axis.  It doesn't make physical sense to apply</span>
+<span class="comment">%two different corrections to the different phases, so we can use the</span>
+<span class="comment">%rotate() function to rotate one of the ODF's by the correction applied to</span>
+<span class="comment">%the other.  We can assume that since the sample is mostly alpha, the</span>
+<span class="comment">%statistics for that phase are better, so let's apply the alpha rotation to</span>
+<span class="comment">%the beta phase and then plot the results.</span>
+
+figure(3)
+plotPDF(cor_alphaODF,[p1 p2],<span class="string">'contourf'</span>,0:1:6)
+colorbar;
+
+figure(4)
+cor_betaODF=rotate(betaODF,rotAlpha);
+plotPDF(cor_betaODF,[p1beta p2beta],<span class="string">'contourf'</span>,0:1:3)
+colorbar;
+</pre><pre class="codeoutput"> 
+alphaODF = ODF (&lt;a href="matlab:docmethods(alphaODF)"&gt;show methods&lt;/a&gt;, &lt;a href="matlab:plot(alphaODF)"&gt;plot&lt;/a&gt;)
+  crystal symmetry : Zirconium (6/mmm, X||a*, Y||b, Z||c)
+  specimen symmetry: 1
+ 
+  Harmonic portion:
+    degree: 28
+    weight: 1
+ 
+ 
+betaODF = ODF (&lt;a href="matlab:docmethods(betaODF)"&gt;show methods&lt;/a&gt;, &lt;a href="matlab:plot(betaODF)"&gt;plot&lt;/a&gt;)
+  crystal symmetry : ZirconiumBeta (m-3m)
+  specimen symmetry: 1
+ 
+  Harmonic portion:
+    degree: 28
+    weight: 1
+ 
+  searching for a first two fold symmetry axes
+  fit: 73%
+  fit: 81%
+  searching for a second two fold symmetry axes
+  fit: 40%
+  fit: 40%
+  searching for a first two fold symmetry axes
+  fit: 5.8%
+  fit: 7%
+  searching for a second two fold symmetry axes
+  fit: -12%
+  fit: -12%
+ 
+rotAlpha = rotation (&lt;a href="matlab:docmethods(rotAlpha)"&gt;show methods&lt;/a&gt;, &lt;a href="matlab:plot(rotAlpha)"&gt;plot&lt;/a&gt;)
+  size: 1 x 1
+ 
+  Bunge Euler angles in degree
+     phi1     Phi    phi2    Inv.
+  195.759 24.3131 170.364       0
+ 
+ 
+ 
+rotBeta = rotation (&lt;a href="matlab:docmethods(rotBeta)"&gt;show methods&lt;/a&gt;, &lt;a href="matlab:plot(rotBeta)"&gt;plot&lt;/a&gt;)
+  size: 1 x 1
+ 
+  Bunge Euler angles in degree
+     phi1     Phi    phi2    Inv.
+  273.467  16.099 90.3354       0
+ 
+ 
+
+ans =
+
+   25.0610
+
+ 
+ans = vector3d (&lt;a href="matlab:docmethods(ans)"&gt;show methods&lt;/a&gt;, &lt;a href="matlab:plot(ans)"&gt;plot&lt;/a&gt;)
+ size: 1 x 1
+          x         y         z
+  -0.946878 -0.213336  0.240645
+
+ans =
+
+   16.5391
+
+ 
+ans = vector3d (&lt;a href="matlab:docmethods(ans)"&gt;show methods&lt;/a&gt;, &lt;a href="matlab:plot(ans)"&gt;plot&lt;/a&gt;)
+ size: 1 x 1
+          x         y         z
+  0.0266052 -0.973203  0.228405
+</pre><img vspace="5" hspace="5" src="Polefigs_08.png" alt=""> <img vspace="5" hspace="5" src="Polefigs_09.png" alt=""> <img vspace="5" hspace="5" src="Polefigs_10.png" alt=""> <img vspace="5" hspace="5" src="Polefigs_11.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%%
+clear all
+import_excel_data;
+%% Plotting pole figures from EBSD data
+
+%We can take the orientaion data from an EBSD structure and use it to
+%generate pole figures. First, define the crystallographic directions you'd
+%like to create pole Figures for, then use the plotPDF command as below:
+p1=Miller(0,0,0,2,ebsd('Zirconium').CS);
+p2=Miller(1,0,-1,0,ebsd('Zirconium').CS);
+figure(1)
+plotPDF(ebsd('Zirconium').orientations,[p1 p2])
+
+%The plot we just made will randomly plot a certain number of points from
+%the ebsd map onto the pole figure.  If you want to plot all othe points,
+%you can do so by setting the 'points' option to 'all'.  It's also useful
+%to change the marker size
+figure(2)
+plotPDF(ebsd('Zirconium').orientations,[p1 p2],'points','all','markerSize',3)
+
+%Having all these points makes it difficult to see what's going on, and
+%it's oftentimes more useful to display PF's as contour plots.  The
+%contourf option will plot the PF as a filled contour plot, and the option
+%after it sets the scale of the contours, in this case from 0 to 6 mrd in
+%steps of 1.  If you prefer unfilled plots you can use contour instead of
+%contourf
+
+figure(3)
+plotPDF(ebsd('Zirconium').orientations,[p1 p2],'contourf',0:1:6)
+colorbar;
+
+
+
+
+%% Inverse pole figures
+
+%If you want to plot an inverse pole figure to see which crystal
+%orientations are aligned along a given sample direction, MTEX can do it
+%quite easily.  The 3 figures below plot inverse pole figures for the
+%x,y, and z directions of the ebsd map.  Here we also show that you can
+%use mean orientation data from grains instead of considering each
+%individual pixel.
+
+[grains,ebsd.grainId,ebsd.mis2mean] = calcGrains(ebsd('indexed'),'angle',5*degree);
+
+figure(1)
+plotIPDF(grains(grains.phase==1).meanOrientation,xvector,'contourf')
+colorbar;
+
+figure(2)
+plotIPDF(grains(grains.phase==1).meanOrientation,yvector,'contourf')
+colorbar;
+
+figure(3)
+plotIPDF(grains(grains.phase==1).meanOrientation,zvector,'contourf')
+colorbar;
+
+%If you want to plot an IPF for an arbitrary direction you can do that as
+%well.  The following code will create an IPF for a direction halfway
+%between the x and y directions (so going diagonally across the map)
+
+dir=vector3d(1,1,0);
+figure(4)
+plotIPDF(grains(grains.phase==1).meanOrientation,dir,'contourf')
+colorbar;
+
+%All of the figures here were done for the alpha phase, which is phase #1
+%in grains.  To get figures for the beta phase, just change the
+%(grains.phase==1) to (grains.phase==2).
+
+%% Calculating an Orientation Distribution Function from EBSD data
+
+alphaODF=calcODF(ebsd('Zirconium').orientations,'halfwidth',10*degree)
+
+betaODF=calcODF(ebsd('ZirconiumBeta').orientations,'halfwidth',10*degree)
+
+%An ODF contains full information about the distribution of orientations,
+%instead of just information about a single crystal direction as in a pole
+%figure.
+
+%Let's take another look at the pole figures for our data, this time both
+%alpha and beta phasess:
+
+p1=Miller(0,0,0,2,ebsd('Zirconium').CS);
+p2=Miller(1,0,-1,0,ebsd('Zirconium').CS);
+
+p1beta=Miller(1,1,1,ebsd('ZirconiumBeta').CS);
+p2beta=Miller(1,-1,0,ebsd('ZirconiumBeta').CS);
+
+figure(1)
+plotPDF(ebsd('Zirconium').orientations,[p1 p2],'contourf',0:1:6)
+colorbar;
+
+figure(2)
+plotPDF(ebsd('ZirconiumBeta').orientations,[p1beta p2beta],'contourf',0:1:3)
+colorbar;
+
+%It seems like the pole figure is slightly tilted, this is pretty common
+%since EBSD samples have to be aligned by hand in the SEM and might be off
+%by a few degrees.  We can use an MTEX function on the ODF to corect this.
+%The centerSpecimen function takes in an ODF and attempts to find and align
+%the sample symmetry.  It returns a rotated ODF along with information
+%about the rotation, which I've assigned to the variable tilt.
+
+[cor_alphaODF, rotAlpha]=centerSpecimen(alphaODF);
+[cor_betaODF, rotBeta]=centerSpecimen(betaODF);
+
+%We now have corrected ODF's for the alpha and beta phases, as well as the
+%rotations applied to them.  Since both are in the same sample, both
+%rotations should be the same, so let's check:
+
+rotAlpha
+
+rotBeta
+
+%We can see from the euler angle output of the rotations that they don't
+%look like they agree very well. Let's check how much they've been rotated
+%by, and the axes about which they're being rotated.
+
+rotAlpha.angle/degree
+
+rotAlpha.axis
+
+rotBeta.angle/degree
+
+rotBeta.axis
+
+%We can see that the alpha phase has been rotated by 25 degrees about an
+%axis close to the x axis, while the beta phase is being rotated by 16
+%degrees, mostly about the y axis.  It doesn't make physical sense to apply
+%two different corrections to the different phases, so we can use the
+%rotate() function to rotate one of the ODF's by the correction applied to
+%the other.  We can assume that since the sample is mostly alpha, the
+%statistics for that phase are better, so let's apply the alpha rotation to
+%the beta phase and then plot the results.
+
+figure(3)
+plotPDF(cor_alphaODF,[p1 p2],'contourf',0:1:6)
+colorbar;
+
+figure(4)
+cor_betaODF=rotate(betaODF,rotAlpha);
+plotPDF(cor_betaODF,[p1beta p2beta],'contourf',0:1:3)
+colorbar;
+
+%%
+##### SOURCE END #####
+--></body></html>

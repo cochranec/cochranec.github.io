@@ -1,0 +1,339 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Matlab_basics</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-02-10"><meta name="DC.source" content="Matlab_basics.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Scalars:</a></li><li><a href="#2">Vectors/matrices:</a></li><li><a href="#3">Conditional Indexing: Your new best friend</a></li><li><a href="#4">Conditional indexing part 2</a></li><li><a href="#5">conditional indexing part 3</a></li><li><a href="#6">Structures and Properties</a></li><li><a href="#7">Structures and Properties 2</a></li><li><a href="#8">Samples and Properties 3</a></li></ul></div><h2>Scalars:<a name="1"></a></h2><pre class="codeinput">x=2
+
+x*3
+</pre><pre class="codeoutput">
+x =
+
+     2
+
+
+ans =
+
+     6
+
+</pre><h2>Vectors/matrices:<a name="2"></a></h2><pre class="codeinput">x=[1 2 3; 4 5 6; 7 8 9]
+
+x(1,1) <span class="comment">%returns 1st row, 1st column</span>
+
+x(1,1:2) <span class="comment">%returns 1st row, columns 1 through 3</span>
+
+x(1,:) <span class="comment">%returns the entire first row</span>
+
+x(1,3)= x(end, end) <span class="comment">%assings a new value to position (1,3)</span>
+
+x*x <span class="comment">%performs matrix multiplication</span>
+
+x.*x <span class="comment">%performs element-by-element multiplication</span>
+
+<span class="comment">%The "list notation" can also be used to assign values. We could have</span>
+<span class="comment">%written the first line as x=[1:3; 4:6; 7:9]</span>
+</pre><pre class="codeoutput">
+x =
+
+     1     2     3
+     4     5     6
+     7     8     9
+
+
+ans =
+
+     1
+
+
+ans =
+
+     1     2
+
+
+ans =
+
+     1     2     3
+
+
+x =
+
+     1     2     9
+     4     5     6
+     7     8     9
+
+
+ans =
+
+    72    84   102
+    66    81   120
+   102   126   192
+
+
+ans =
+
+     1     4    81
+    16    25    36
+    49    64    81
+
+</pre><h2>Conditional Indexing: Your new best friend<a name="3"></a></h2><pre class="codeinput">clear <span class="string">all</span>
+<span class="comment">%We have some data as a function of time for two samples:</span>
+time=[1:10000];
+sample1=abs(100*cos(time/400));
+sample2=100*sin(time/10000);
+
+figure(1)
+plot(time,sample1,<span class="string">'.'</span>,time,sample2,<span class="string">'.'</span>)
+legend({<span class="string">'sample 1'</span> <span class="string">'sample 2'</span>})
+</pre><img vspace="5" hspace="5" src="Matlab_basics_01.png" alt=""> <h2>Conditional indexing part 2<a name="4"></a></h2><pre class="codeinput">figure(2)
+plot(sample1&gt;sample2,<span class="string">'linewidth'</span>,2)
+
+<span class="comment">%What if we're interested only in data where sample1 is greater than sample 2?</span>
+<span class="comment">%Instead of simply using row/column indexing, we can input conditions</span>
+tic
+
+<span class="comment">%get all values of the variosu vectors for indecies where the value of</span>
+<span class="comment">%sample1 is higher than sample 2.</span>
+x=time(sample1&gt;sample2);
+y=sample1(sample1&gt;sample2);
+y2=sample2(sample1&gt;sample2);
+t1=toc;
+
+
+
+<span class="comment">%here is how you'd typically do this in C++/java/fortran/etc</span>
+<span class="comment">%This method will still give the same results in Matlab, but is MUCH slower</span>
+tic
+j=1;
+<span class="keyword">for</span> i=1:10000
+    <span class="keyword">if</span> sample1(i)&gt;sample2(i)
+        xif(j)=time(i);
+        yif(j)=sample1(i);
+        yif2(j)=sample2(i);
+        j=j+1;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+t2=toc;
+</pre><img vspace="5" hspace="5" src="Matlab_basics_02.png" alt=""> <h2>conditional indexing part 3<a name="5"></a></h2><pre class="codeinput">figure(3)
+plot(x,y,<span class="string">'.'</span>,x,y2,<span class="string">'.'</span>)
+ylim([0 100])
+xlim([0 10000])
+
+sprintf(<span class="string">'Conditional indexing method took %0.2g seconds'</span>,t1)
+sprintf(<span class="string">'For loop and if statement method took %0.2g seconds'</span>,t2)
+sprintf(<span class="string">'Conditional indexing is %0.2g times faster'</span>,t2/t1)
+</pre><pre class="codeoutput">
+ans =
+
+Conditional indexing method took 0.00075 seconds
+
+
+ans =
+
+For loop and if statement method took 0.03 seconds
+
+
+ans =
+
+Conditional indexing is 40 times faster
+
+</pre><img vspace="5" hspace="5" src="Matlab_basics_03.png" alt=""> <h2>Structures and Properties<a name="6"></a></h2><pre class="codeinput">clear <span class="string">all</span>
+<span class="comment">%In matlab, you can also create structures that contain many different</span>
+<span class="comment">%types of data.  This is useful in some situations and is used extensively</span>
+<span class="comment">%by MTEX.</span>
+
+<span class="comment">%Here we set up a structure called Sample.  Each sample has 4 properties:</span>
+<span class="comment">%material, type, data, and rate</span>
+sample.material=<span class="string">'Zircaloy-2'</span>;
+sample.type=<span class="string">'tensile'</span>;
+sample.data=0:0.2:5;
+sample.rate=1e-4;
+</pre><h2>Structures and Properties 2<a name="7"></a></h2><pre class="codeinput"><span class="comment">%Like regular variables, structures can be made into arrays: Let's add a</span>
+<span class="comment">%second entry to sample:</span>
+sample(2).material=<span class="string">'Excel'</span>;
+sample(2).type=<span class="string">'compression'</span>;
+sample(2).data=0:-0.2:-5;
+sample(2).rate=1e-5;
+</pre><h2>Samples and Properties 3<a name="8"></a></h2><pre class="codeinput"><span class="comment">%We can use conditional indexing on structures too!</span>
+<span class="comment">%Let's say we wanted to find samples that had a rate of 1e-5</span>
+
+x=sample([sample.rate]==1e-5);
+
+<span class="comment">%note that we neeed to use square brackets to turn our structure output</span>
+<span class="comment">%into something that can be directly compared to a value.  This is just an</span>
+<span class="comment">%odd Matlab quirk.</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Scalars:
+
+x=2
+
+x*3
+
+%% Vectors/matrices:
+x=[1 2 3; 4 5 6; 7 8 9]
+
+x(1,1) %returns 1st row, 1st column
+
+x(1,1:2) %returns 1st row, columns 1 through 3
+
+x(1,:) %returns the entire first row
+
+x(1,3)= x(end, end) %assings a new value to position (1,3)
+
+x*x %performs matrix multiplication
+
+x.*x %performs element-by-element multiplication 
+
+%The "list notation" can also be used to assign values. We could have
+%written the first line as x=[1:3; 4:6; 7:9]
+
+%% Conditional Indexing: Your new best friend
+clear all
+%We have some data as a function of time for two samples:
+time=[1:10000];
+sample1=abs(100*cos(time/400));
+sample2=100*sin(time/10000);
+
+figure(1)
+plot(time,sample1,'.',time,sample2,'.')
+legend({'sample 1' 'sample 2'})
+
+%% Conditional indexing part 2
+figure(2)
+plot(sample1>sample2,'linewidth',2)
+
+%What if we're interested only in data where sample1 is greater than sample 2?
+%Instead of simply using row/column indexing, we can input conditions
+tic
+
+%get all values of the variosu vectors for indecies where the value of
+%sample1 is higher than sample 2.
+x=time(sample1>sample2);
+y=sample1(sample1>sample2);
+y2=sample2(sample1>sample2);
+t1=toc;
+
+
+
+%here is how you'd typically do this in C++/java/fortran/etc
+%This method will still give the same results in Matlab, but is MUCH slower
+tic
+j=1;
+for i=1:10000
+    if sample1(i)>sample2(i)
+        xif(j)=time(i);
+        yif(j)=sample1(i);
+        yif2(j)=sample2(i);
+        j=j+1;
+    end
+end
+t2=toc;
+
+%% conditional indexing part 3
+figure(3)
+plot(x,y,'.',x,y2,'.')
+ylim([0 100])
+xlim([0 10000])
+
+sprintf('Conditional indexing method took %0.2g seconds',t1)
+sprintf('For loop and if statement method took %0.2g seconds',t2)
+sprintf('Conditional indexing is %0.2g times faster',t2/t1)
+
+%% Structures and Properties
+clear all
+%In matlab, you can also create structures that contain many different
+%types of data.  This is useful in some situations and is used extensively
+%by MTEX.
+
+%Here we set up a structure called Sample.  Each sample has 4 properties:
+%material, type, data, and rate
+sample.material='Zircaloy-2';
+sample.type='tensile';
+sample.data=0:0.2:5;
+sample.rate=1e-4;
+
+%% Structures and Properties 2
+
+%Like regular variables, structures can be made into arrays: Let's add a
+%second entry to sample:
+sample(2).material='Excel';
+sample(2).type='compression';
+sample(2).data=0:-0.2:-5;
+sample(2).rate=1e-5;
+
+%% Samples and Properties 3
+
+%We can use conditional indexing on structures too!
+%Let's say we wanted to find samples that had a rate of 1e-5
+
+x=sample([sample.rate]==1e-5);
+
+%note that we neeed to use square brackets to turn our structure output
+%into something that can be directly compared to a value.  This is just an
+%odd Matlab quirk.
+
+##### SOURCE END #####
+--></body></html>

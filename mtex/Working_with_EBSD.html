@@ -1,0 +1,786 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Working_with_EBSD</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-02-10"><meta name="DC.source" content="Working_with_EBSD.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Plotting EBSD</a></li><li><a href="#3">Plotting ebsd properties</a></li><li><a href="#4">Grain reconstruction</a></li><li><a href="#5">Grain Reconstruction 2</a></li><li><a href="#6">Combining plots with the hold command</a></li><li><a href="#7">Getting grain statistics</a></li><li><a href="#8">Plotting grain boundaries by angle</a></li><li><a href="#9">Plotting grain boundaries by misorientation axis</a></li><li><a href="#10">Advanced grain boundary analysis</a></li><li><a href="#11">Twin Identification</a></li></ul></div><pre class="codeinput"><span class="comment">%Ebsd Data is stored in a structure that has many properties</span>
+<span class="comment">%If you type the name of your ebsd structure, matlab will output a summary</span>
+clear <span class="string">all</span>
+import_excel_data
+ebsd
+
+<span class="comment">%Note the names of the various phases are listed.  To select a single phase</span>
+<span class="comment">%you can specify it by its name or by using conditional indexing to select</span>
+<span class="comment">%by phased number:</span>
+
+ebsd(<span class="string">'Zirconium'</span>)
+
+ebsd(ebsd.phase==1)
+
+<span class="comment">%though some of the properties are listed, if you want to see a list, type</span>
+<span class="comment">%in "ebsd." (without quotes) to the command line and press the tab key.</span>
+<span class="comment">%Matlab will open a list of properties available. This works for most</span>
+<span class="comment">%structure types in Matlab.  Feel free to experiment with the different</span>
+<span class="comment">%properties to see what kind of information you can access.</span>
+</pre><pre class="codeoutput"> 
+ebsd = EBSD (&lt;a href="matlab:docmethods(ebsd)"&gt;show methods&lt;/a&gt;, &lt;a href="matlab:plot(ebsd)"&gt;plot&lt;/a&gt;)
+ 
+ Phase  Orientations        Mineral        Color  Symmetry  Crystal reference frame
+     0    24905 (8%)     notIndexed                                                
+     1  213854 (69%)      Zirconium   light blue     6/mmm        X||a*, Y||b, Z||c
+     2   71441 (23%)  ZirconiumBeta  light green      m-3m                         
+ 
+ Properties: bands, bc, bs, error, mad, x, y
+ Scan unit : um
+ 
+ 
+ans = EBSD (&lt;a href="matlab:docmethods(ans)"&gt;show methods&lt;/a&gt;, &lt;a href="matlab:plot(ans)"&gt;plot&lt;/a&gt;)
+ 
+ Phase   Orientations    Mineral       Color  Symmetry  Crystal reference frame
+     1  213854 (100%)  Zirconium  light blue     6/mmm        X||a*, Y||b, Z||c
+ 
+ Properties: bands, bc, bs, error, mad, x, y
+ Scan unit : um
+ 
+ 
+ans = EBSD (&lt;a href="matlab:docmethods(ans)"&gt;show methods&lt;/a&gt;, &lt;a href="matlab:plot(ans)"&gt;plot&lt;/a&gt;)
+ 
+ Phase   Orientations    Mineral       Color  Symmetry  Crystal reference frame
+     1  213854 (100%)  Zirconium  light blue     6/mmm        X||a*, Y||b, Z||c
+ 
+ Properties: bands, bc, bs, error, mad, x, y
+ Scan unit : um
+ 
+</pre><h2>Plotting EBSD<a name="2"></a></h2><pre class="codeinput"><span class="comment">%By default, matlab plots ebsd data by phase (if you have a single phase</span>
+<span class="comment">%material, this means you won't see much)</span>
+
+plot(ebsd)
+</pre><img vspace="5" hspace="5" src="Working_with_EBSD_01.png" alt=""> <h2>Plotting ebsd properties<a name="3"></a></h2><pre class="codeinput"><span class="comment">%If you want to plot something else on an EBSD map, you can do so:</span>
+
+<span class="comment">%here is a plot of the band contrast</span>
+figure(1)
+plot(ebsd,ebsd.bc)
+colormap(<span class="string">'gray'</span>);
+
+<span class="comment">%We can plot orientations, but only for one phase at a time:</span>
+figure(2)
+<span class="comment">%remember, you can specify a phase within brackets when calling the ebsd structure</span>
+plot(ebsd(<span class="string">'Zirconium'</span>),ebsd(<span class="string">'Zirconium'</span>).orientations)
+
+<span class="comment">%here is some code that will plot an inverse pole figure showing how the</span>
+<span class="comment">%colors in figure 2 relate to orientation</span>
+figure(3)
+oM=ipdfHSVOrientationMapping(ebsd(<span class="string">'Zirconium'</span>).orientations);
+plot(oM)
+</pre><pre class="codeoutput">  I'm going to colorize the orientation data with the 
+  standard MTEX colorkey. To view the colorkey do:
+ 
+  oM = ipdfHSVOrientationMapping(ori_variable_name)
+  plot(oM)
+</pre><img vspace="5" hspace="5" src="Working_with_EBSD_02.png" alt=""> <img vspace="5" hspace="5" src="Working_with_EBSD_03.png" alt=""> <img vspace="5" hspace="5" src="Working_with_EBSD_04.png" alt=""> <h2>Grain reconstruction<a name="4"></a></h2><pre class="codeinput"><span class="comment">%MTEX can reconstruct grains from ebsd data.</span>
+
+<span class="comment">%calcGrains takes in ebsd and will define a grain boundary as any point</span>
+<span class="comment">%where there is a change in orientation of 5 degrees or more.  It outputs a</span>
+<span class="comment">%list of grains, and gives the ebsd structure  new properties called grainId,</span>
+<span class="comment">%and mis2mean.  GrainId tells which grain each pixel in the map belongs to,</span>
+<span class="comment">%and mis2mean is the misorientation of each pixel to the mean orientation</span>
+<span class="comment">%of its grain.</span>
+[grains,ebsd.grainId,ebsd.mis2mean] = calcGrains(ebsd,<span class="string">'angle'</span>,5*degree);
+
+<span class="comment">%We can plot the grains now</span>
+figure(1)
+plot(grains)
+
+<span class="comment">%Note that MTEX has treated non-indexed areas as their own grains.  If</span>
+<span class="comment">%you'd instead like MTEX to simply absorb non-indexed points into grains</span>
+<span class="comment">%formed by indexed points, you can issue this command instead (note that</span>
+<span class="comment">%instead of sending all of ebsd as an argument to calcGrains, we send only</span>
+<span class="comment">%the indexed parts)</span>
+
+[grains,ebsd.grainId,ebsd.mis2mean] = calcGrains(ebsd(<span class="string">'indexed'</span>),<span class="string">'angle'</span>,5*degree);
+
+<span class="comment">%We can plot the grains now</span>
+figure(2)
+plot(grains)
+</pre><img vspace="5" hspace="5" src="Working_with_EBSD_05.png" alt=""> <img vspace="5" hspace="5" src="Working_with_EBSD_06.png" alt=""> <h2>Grain Reconstruction 2<a name="5"></a></h2><pre class="codeinput"><span class="comment">%Often you will see that ther are a lot of reconstructed grains that are</span>
+<span class="comment">%very tiny, perhaps even a single pixel.  These are usually mis-indexed</span>
+<span class="comment">%points</span>
+
+[grains,ebsd.grainId,ebsd.mis2mean] = calcGrains(ebsd,<span class="string">'angle'</span>,5*degree);
+
+<span class="comment">%You can get rid of them and clean up your map a little by first running</span>
+<span class="comment">%grain reconstruction, then executing the following command to remove any</span>
+<span class="comment">%points that are in grains less than 3 pixels large:</span>
+
+ebsd(grains(grains.grainSize&lt;3))=[];
+
+<span class="comment">%Now we re-run grain reconstruction</span>
+
+[grains,ebsd.grainId,ebsd.mis2mean] = calcGrains(ebsd(<span class="string">'indexed'</span>),<span class="string">'angle'</span>,5*degree);
+
+<span class="comment">%Note that the map of the grains is a lot cleaner now</span>
+figure(1)
+plot(grains)
+</pre><img vspace="5" hspace="5" src="Working_with_EBSD_07.png" alt=""> <h2>Combining plots with the hold command<a name="6"></a></h2><pre class="codeinput"><span class="comment">%It's oftentimes useful to combine the raw ebsd data with the reconstructed</span>
+<span class="comment">%grain boundary data.  Here's an example where we plot the orientation data</span>
+<span class="comment">%and use matlab's hold feature to add grain boundaries to the figure:</span>
+
+figure(1)
+plot(ebsd(<span class="string">'Zirconium'</span>),ebsd(<span class="string">'Zirconium'</span>).orientations);
+
+<span class="comment">%now using the hold command we plot a property of grains called boundary.</span>
+<span class="comment">%This will outline the grain boundaries in black. We'll also set the</span>
+<span class="comment">%linewidth to 1.5 since the default lines are a bit too thin</span>
+hold <span class="string">on</span>
+plot(grains.boundary,<span class="string">'linewidth'</span>,1.5);
+hold <span class="string">off</span>
+</pre><pre class="codeoutput">  I'm going to colorize the orientation data with the 
+  standard MTEX colorkey. To view the colorkey do:
+ 
+  oM = ipdfHSVOrientationMapping(ori_variable_name)
+  plot(oM)
+</pre><img vspace="5" hspace="5" src="Working_with_EBSD_08.png" alt=""> <h2>Getting grain statistics<a name="7"></a></h2><pre class="codeinput"><span class="comment">%In MTEX, you can get a histogram of grain sizes by sending your grains</span>
+<span class="comment">%object to the funciton hist().  The number of bins can also be</span>
+<span class="comment">%specified.(default is 15)</span>
+figure(1)
+hist(grains,20)
+
+<span class="comment">%You can also use simple matlab functions to get useful information about</span>
+<span class="comment">%your grains</span>
+
+<span class="comment">%Here we calculate the median grain size for all the grains, as well as</span>
+<span class="comment">%each phase individually. (Note: grains.area returns the area in microns^2,</span>
+<span class="comment">%and grains.grainSize returns the area in number of pixels.)</span>
+
+median(grains.area)
+
+median(grains(grains.phase==1).area)
+
+median(grains(grains.phase==2).area)
+
+<span class="comment">%The grains object has many useful properties! Remember, you can see a list</span>
+<span class="comment">%of the properties in grains by typing "grains." (without quotes) into the</span>
+<span class="comment">%Matlab command line and pressing the tab key.</span>
+</pre><pre class="codeoutput">
+ans =
+
+    1.7709
+
+
+ans =
+
+    2.5642
+
+
+ans =
+
+    1.2681
+
+</pre><img vspace="5" hspace="5" src="Working_with_EBSD_09.png" alt=""> <h2>Plotting grain boundaries by angle<a name="8"></a></h2><pre class="codeinput"><span class="comment">%This gets a little tricky because it takes advantage of the fact that you</span>
+<span class="comment">%can have multiple "layers" of properties in a single structure</span>
+
+<span class="comment">%first we'll define gB as the grain boundary information from grains</span>
+gB=grains.boundary;
+
+<span class="comment">%Next we define gBAA as the alpha/alpha grain boundaries</span>
+gBAA=gB(<span class="string">'Zirconium'</span>,<span class="string">'Zirconium'</span>);
+
+<span class="comment">%gBBB will be the beta/beta grain boundaries</span>
+gBBB=gB(<span class="string">'ZirconiumBeta'</span>,<span class="string">'ZirconiumBeta'</span>);
+
+<span class="comment">%we now have Matlab plot the grains</span>
+plot(grains)
+
+<span class="comment">%Using the hold command we plot GBAA nad GBBB and color them by their</span>
+<span class="comment">%misoreientaiton angle.  This will let us show which grain boundaries are</span>
+<span class="comment">%high and which are low.  We needed to do this for just the alpha/alpha and</span>
+<span class="comment">%beta/beta boundaries because MTEX doesn't know how to meaningfully find</span>
+<span class="comment">%misorientations between diffferent crystal structures</span>
+hold <span class="string">on</span>
+plot(gBAA,gBAA.misorientation.angle/degree,<span class="string">'linewidth'</span>,1.5)
+plot(gBBB,gBBB.misorientation.angle/degree,<span class="string">'linewidth'</span>,1.5)
+hold <span class="string">off</span>
+
+<span class="comment">%setting the colormap to 'jet' makes the colorcoding a bit nicer. It's just</span>
+<span class="comment">%a cosmetic thing.</span>
+colormap(<span class="string">'jet'</span>)
+</pre><img vspace="5" hspace="5" src="Working_with_EBSD_10.png" alt=""> <h2>Plotting grain boundaries by misorientation axis<a name="9"></a></h2><pre class="codeinput"><span class="comment">%In addition to the misorientation angle of grain boundaries, it is often</span>
+<span class="comment">%useful to know which crystallographic direction the misorientation is</span>
+<span class="comment">%occuring about</span>
+
+<span class="comment">%We will define the grain boundaries as in the previous section</span>
+gB=grains.boundary;
+gBAA=gB(<span class="string">'Zirconium'</span>,<span class="string">'Zirconium'</span>);
+
+
+<span class="comment">%Now we define an axis that we are interested in.  We define axisA as the</span>
+<span class="comment">%{10-10} plane normal. The last argument is the crystal symmetry for the</span>
+<span class="comment">%phase in question, which must be provided so MTEX knows what kind of</span>
+<span class="comment">%structure your Miller variable goes with</span>
+
+axisA=Miller(1,0,-1,0,ebsd(<span class="string">'Zirconium'</span>).CS);
+
+
+<span class="comment">%Now, we find which boundaries have a mistorientation axis close to the</span>
+<span class="comment">%ones we've defined. We define axisGBA  as a conditional</span>
+<span class="comment">%statement, so we can use it for conditional indexing.  The line below</span>
+<span class="comment">%will find all grain boundaries that have a misorientation axis within 2</span>
+<span class="comment">%degrees of the one we defined.</span>
+
+axisGBA=angle(gBAA.misorientation.axis,axisA)&lt;5*degree;
+
+<span class="comment">%Here we plot the grains, then use the hold command to add the special</span>
+<span class="comment">%grain boundaries we're interested in.  The alpha/alpha grains with their</span>
+<span class="comment">%{10-10} misorientation axis</span>
+plot(grains)
+hold <span class="string">on</span>
+plot(gBAA(axisGBA),<span class="string">'linecolor'</span>,<span class="string">'red'</span>,<span class="string">'linewidth'</span>,1.5);
+hold <span class="string">off</span>
+</pre><img vspace="5" hspace="5" src="Working_with_EBSD_11.png" alt=""> <h2>Advanced grain boundary analysis<a name="10"></a></h2><pre class="codeinput"><span class="comment">%This section will show how to pick out very specific grain boundaries</span>
+<span class="comment">%where both the misorientation axis and angle are defined.  This can be</span>
+<span class="comment">%used for twin identification, which will be shown in another section, but</span>
+<span class="comment">%here we will use it to look at the Burgers relationship between the alpha</span>
+<span class="comment">%and beta phase.</span>
+
+<span class="comment">%We start by defining 4 Miller directions, such that a1//b1 and a2//b2.</span>
+<span class="comment">%This will let us define the orienation relationship betweeen alpha and</span>
+<span class="comment">%beta phases</span>
+a1=Miller(0,0,0,2,ebsd(<span class="string">'Zirconium'</span>).CS);
+b1=Miller(1,1,0,ebsd(<span class="string">'ZirconiumBeta'</span>).CS);
+a2=Miller(1,1,-2,0,ebsd(<span class="string">'Zirconium'</span>).CS);
+b2=Miller(1,1,1,ebsd(<span class="string">'ZirconiumBeta'</span>).CS);
+
+<span class="comment">%Next, we create an orientation map from alpha to beta based on the sets of</span>
+<span class="comment">%parallel directions we just defined.</span>
+ab=orientation(<span class="string">'map'</span>,a1,b1,a2,b2,ebsd(<span class="string">'Zirconium'</span>).CS,ebsd(<span class="string">'ZirconiumBeta'</span>).CS);
+
+<span class="comment">%We we now want to get just the grain boundaries that are alpha/beta</span>
+<span class="comment">%boundaries</span>
+
+gBAB=grains.boundary(<span class="string">'Zirconium'</span>,<span class="string">'ZirconiumBeta'</span>);
+
+<span class="comment">%Now we will take all alpha/beta boundaries that have a misorientation</span>
+<span class="comment">%within 5 degrees of the relationship we defined</span>
+isBurgers=angle(gBAB.misorientation,ab)&lt;5*degree;
+
+<span class="comment">%Finally, we plot the results using conditional indexing:</span>
+
+plot(grains);
+hold <span class="string">on</span>
+plot(gBAB(isBurgers),<span class="string">'linecolor'</span>,<span class="string">'red'</span>,<span class="string">'linewidth'</span>,1.5);
+hold <span class="string">off</span>
+</pre><img vspace="5" hspace="5" src="Working_with_EBSD_12.png" alt=""> <h2>Twin Identification<a name="11"></a></h2><pre class="codeinput">clear <span class="string">all</span>
+<span class="comment">%Twins in Zr and other materials, we sometimes see a lot of twins formed</span>
+<span class="comment">%during deformation.  It's really easy to pick out twins from EBSD data</span>
+<span class="comment">%with MTEX. The MTEX help page on this is actually pretty good:</span>
+<span class="comment">% http://mtex-toolbox.github.io/files/doc/TwinningAnalysis.html</span>
+
+<span class="comment">%First we'll import a dataset from a tensile sample that has been heavily</span>
+<span class="comment">%deformed</span>
+import_increment3;
+figure(1)
+plot(ebsd(<span class="string">'Zirconium'</span>),ebsd(<span class="string">'Zirconium'</span>).orientations);
+
+<span class="comment">%Now run grain reconstruction.  This map has some poorly indexed points, so</span>
+<span class="comment">%we'll get rid of any grains smaller than 3 pixels.</span>
+[grains,ebsd.grainId,ebsd.mis2mean] = calcGrains(ebsd(<span class="string">'indexed'</span>),<span class="string">'angle'</span>,5*degree);
+
+ebsd(grains(grains.grainSize&lt;3))=[];
+
+[grains,ebsd.grainId,ebsd.mis2mean] = calcGrains(ebsd(<span class="string">'indexed'</span>),<span class="string">'angle'</span>,5*degree);
+
+<span class="comment">%Now we pick out the Zr/Zr grain boundaries:</span>
+
+bounds=grains.boundary;
+
+boundsZr=bounds(<span class="string">'Zirconium'</span>,<span class="string">'Zirconium'</span>);
+
+<span class="comment">%Now we define the twinning orientation relationship.  In Zr the</span>
+<span class="comment">%relationship is as defined below, where t1//t2 and t3//t4</span>
+t1=Miller(1,1,-2,0,ebsd(<span class="string">'Zirconium'</span>).CS);
+t2=Miller(2,-1,-1,0,ebsd(<span class="string">'Zirconium'</span>).CS);
+t3=Miller(-1,0,1,1,ebsd(<span class="string">'Zirconium'</span>).CS);
+t4=Miller(1,0,-1,1,ebsd(<span class="string">'Zirconium'</span>).CS);
+
+twinning = orientation(<span class="string">'map'</span>,t1,t2,t3,t4)
+
+<span class="comment">%Now we check which grain boundaries are twins by setting a condition to</span>
+<span class="comment">%check if the boundary's mistorientation is within 5 degrees of the</span>
+<span class="comment">%orientation relationship, then use conditional indexing:</span>
+
+istwinning=angle(twinning,boundsZr.misorientation)&lt;5*degree;
+twinboundaries=boundsZr(istwinning);
+
+<span class="comment">%Now plot the data, using the hold command to</span>
+<span class="comment">%plot the normal boundaries in black and the twin boundaries overtop in red.</span>
+figure(2)
+plot(ebsd(<span class="string">'Zirconium'</span>),ebsd(<span class="string">'Zirconium'</span>).orientations)
+
+hold <span class="string">on</span>
+plot(grains.boundary,<span class="string">'linewidth'</span>,1.5);
+plot(twinboundaries,<span class="string">'linewidth'</span>,1.5,<span class="string">'linecolor'</span>,<span class="string">'red'</span>);
+hold <span class="string">off</span>
+
+<span class="comment">%If you like, there's a command to merge twins with their parents, so that</span>
+<span class="comment">%they will be considered a single grain:</span>
+
+[mergedGrains,parentId] = merge(grains,twinboundaries);
+
+<span class="comment">%Now we can plot our merged grain boundaries over the data:</span>
+figure(3)
+plot(ebsd(<span class="string">'Zirconium'</span>),ebsd(<span class="string">'Zirconium'</span>).orientations)
+
+hold <span class="string">on</span>
+plot(mergedGrains.boundary,<span class="string">'linewidth'</span>,1.5);
+hold <span class="string">off</span>
+
+<span class="comment">%This also lets you see what your untwinned grain size looks like:</span>
+
+median(grains.area)
+
+median(mergedGrains.area)
+
+<span class="comment">%Finally, you can get the twin area fraction like this.  First we get the</span>
+<span class="comment">%grain id numbers of all the twins.  The unique() function makes sure</span>
+<span class="comment">%there's no duplicates.</span>
+
+twinId = unique(boundsZr(istwinning).grainId);
+
+<span class="comment">% Next we ge the sum of all the twins, and divide them from the sum of the</span>
+<span class="comment">% areas of the entire set of grains</span>
+twinFraction=sum(area(grains(twinId))) / sum(area(grains)) * 100
+</pre><pre class="codeoutput">  I'm going to colorize the orientation data with the 
+  standard MTEX colorkey. To view the colorkey do:
+ 
+  oM = ipdfHSVOrientationMapping(ori_variable_name)
+  plot(oM)
+ 
+twinning = misorientation (&lt;a href="matlab:docmethods(twinning)"&gt;show methods&lt;/a&gt;, &lt;a href="matlab:plot(twinning)"&gt;plot&lt;/a&gt;)
+  size: 1 x 1
+  crystal symmetry : Zirconium (6/mmm, X||a*, Y||b, Z||c)
+  crystal symmetry : Zirconium (6/mmm, X||a*, Y||b, Z||c)
+ 
+  Bunge Euler angles in degree
+  phi1     Phi    phi2    Inv.
+   330 94.7957     330       0
+ 
+ 
+  I'm going to colorize the orientation data with the 
+  standard MTEX colorkey. To view the colorkey do:
+ 
+  oM = ipdfHSVOrientationMapping(ori_variable_name)
+  plot(oM)
+  I'm going to colorize the orientation data with the 
+  standard MTEX colorkey. To view the colorkey do:
+ 
+  oM = ipdfHSVOrientationMapping(ori_variable_name)
+  plot(oM)
+
+ans =
+
+    2.3553
+
+
+ans =
+
+    2.5126
+
+
+twinFraction =
+
+   14.7671
+
+</pre><img vspace="5" hspace="5" src="Working_with_EBSD_13.png" alt=""> <img vspace="5" hspace="5" src="Working_with_EBSD_14.png" alt=""> <img vspace="5" hspace="5" src="Working_with_EBSD_15.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%%
+%Ebsd Data is stored in a structure that has many properties
+%If you type the name of your ebsd structure, matlab will output a summary
+clear all
+import_excel_data
+ebsd
+
+%Note the names of the various phases are listed.  To select a single phase
+%you can specify it by its name or by using conditional indexing to select
+%by phased number:
+
+ebsd('Zirconium')
+
+ebsd(ebsd.phase==1)
+
+%though some of the properties are listed, if you want to see a list, type
+%in "ebsd." (without quotes) to the command line and press the tab key.
+%Matlab will open a list of properties available. This works for most
+%structure types in Matlab.  Feel free to experiment with the different
+%properties to see what kind of information you can access.
+
+%% Plotting EBSD
+
+%By default, matlab plots ebsd data by phase (if you have a single phase
+%material, this means you won't see much)
+
+plot(ebsd)
+
+%% Plotting ebsd properties
+
+%If you want to plot something else on an EBSD map, you can do so:
+
+%here is a plot of the band contrast
+figure(1)
+plot(ebsd,ebsd.bc)
+colormap('gray');
+
+%We can plot orientations, but only for one phase at a time:
+figure(2)
+%remember, you can specify a phase within brackets when calling the ebsd structure
+plot(ebsd('Zirconium'),ebsd('Zirconium').orientations)
+
+%here is some code that will plot an inverse pole figure showing how the
+%colors in figure 2 relate to orientation
+figure(3)
+oM=ipdfHSVOrientationMapping(ebsd('Zirconium').orientations);
+plot(oM)
+
+%% Grain reconstruction
+
+%MTEX can reconstruct grains from ebsd data. 
+
+%calcGrains takes in ebsd and will define a grain boundary as any point
+%where there is a change in orientation of 5 degrees or more.  It outputs a
+%list of grains, and gives the ebsd structure  new properties called grainId,
+%and mis2mean.  GrainId tells which grain each pixel in the map belongs to,
+%and mis2mean is the misorientation of each pixel to the mean orientation
+%of its grain.
+[grains,ebsd.grainId,ebsd.mis2mean] = calcGrains(ebsd,'angle',5*degree);
+
+%We can plot the grains now
+figure(1)
+plot(grains)
+
+%Note that MTEX has treated non-indexed areas as their own grains.  If
+%you'd instead like MTEX to simply absorb non-indexed points into grains
+%formed by indexed points, you can issue this command instead (note that
+%instead of sending all of ebsd as an argument to calcGrains, we send only
+%the indexed parts)
+
+[grains,ebsd.grainId,ebsd.mis2mean] = calcGrains(ebsd('indexed'),'angle',5*degree);
+
+%We can plot the grains now
+figure(2)
+plot(grains)
+
+%% Grain Reconstruction 2
+
+%Often you will see that ther are a lot of reconstructed grains that are
+%very tiny, perhaps even a single pixel.  These are usually mis-indexed
+%points
+
+[grains,ebsd.grainId,ebsd.mis2mean] = calcGrains(ebsd,'angle',5*degree);
+
+%You can get rid of them and clean up your map a little by first running
+%grain reconstruction, then executing the following command to remove any
+%points that are in grains less than 3 pixels large:
+
+ebsd(grains(grains.grainSize<3))=[];
+
+%Now we re-run grain reconstruction
+
+[grains,ebsd.grainId,ebsd.mis2mean] = calcGrains(ebsd('indexed'),'angle',5*degree);
+
+%Note that the map of the grains is a lot cleaner now
+figure(1)
+plot(grains)
+
+%% Combining plots with the hold command
+
+%It's oftentimes useful to combine the raw ebsd data with the reconstructed
+%grain boundary data.  Here's an example where we plot the orientation data
+%and use matlab's hold feature to add grain boundaries to the figure:
+
+figure(1)
+plot(ebsd('Zirconium'),ebsd('Zirconium').orientations);
+
+%now using the hold command we plot a property of grains called boundary.
+%This will outline the grain boundaries in black. We'll also set the
+%linewidth to 1.5 since the default lines are a bit too thin
+hold on
+plot(grains.boundary,'linewidth',1.5);
+hold off
+
+%% Getting grain statistics
+
+%In MTEX, you can get a histogram of grain sizes by sending your grains
+%object to the funciton hist().  The number of bins can also be
+%specified.(default is 15)
+figure(1)
+hist(grains,20)
+
+%You can also use simple matlab functions to get useful information about
+%your grains
+
+%Here we calculate the median grain size for all the grains, as well as
+%each phase individually. (Note: grains.area returns the area in microns^2,
+%and grains.grainSize returns the area in number of pixels.)
+
+median(grains.area)
+
+median(grains(grains.phase==1).area)
+
+median(grains(grains.phase==2).area)
+
+%The grains object has many useful properties! Remember, you can see a list
+%of the properties in grains by typing "grains." (without quotes) into the
+%Matlab command line and pressing the tab key.  
+
+
+%% Plotting grain boundaries by angle
+
+%This gets a little tricky because it takes advantage of the fact that you
+%can have multiple "layers" of properties in a single structure
+
+%first we'll define gB as the grain boundary information from grains
+gB=grains.boundary;
+
+%Next we define gBAA as the alpha/alpha grain boundaries
+gBAA=gB('Zirconium','Zirconium');
+
+%gBBB will be the beta/beta grain boundaries
+gBBB=gB('ZirconiumBeta','ZirconiumBeta');
+
+%we now have Matlab plot the grains
+plot(grains)
+
+%Using the hold command we plot GBAA nad GBBB and color them by their
+%misoreientaiton angle.  This will let us show which grain boundaries are
+%high and which are low.  We needed to do this for just the alpha/alpha and
+%beta/beta boundaries because MTEX doesn't know how to meaningfully find
+%misorientations between diffferent crystal structures
+hold on
+plot(gBAA,gBAA.misorientation.angle/degree,'linewidth',1.5)
+plot(gBBB,gBBB.misorientation.angle/degree,'linewidth',1.5)
+hold off
+
+%setting the colormap to 'jet' makes the colorcoding a bit nicer. It's just
+%a cosmetic thing.
+colormap('jet')
+
+%% Plotting grain boundaries by misorientation axis
+
+%In addition to the misorientation angle of grain boundaries, it is often
+%useful to know which crystallographic direction the misorientation is
+%occuring about
+
+%We will define the grain boundaries as in the previous section
+gB=grains.boundary;
+gBAA=gB('Zirconium','Zirconium');
+
+
+%Now we define an axis that we are interested in.  We define axisA as the
+%{10-10} plane normal. The last argument is the crystal symmetry for the 
+%phase in question, which must be provided so MTEX knows what kind of 
+%structure your Miller variable goes with
+
+axisA=Miller(1,0,-1,0,ebsd('Zirconium').CS);
+
+
+%Now, we find which boundaries have a mistorientation axis close to the
+%ones we've defined. We define axisGBA  as a conditional
+%statement, so we can use it for conditional indexing.  The line below
+%will find all grain boundaries that have a misorientation axis within 2
+%degrees of the one we defined.
+
+axisGBA=angle(gBAA.misorientation.axis,axisA)<5*degree;
+
+%Here we plot the grains, then use the hold command to add the special
+%grain boundaries we're interested in.  The alpha/alpha grains with their
+%{10-10} misorientation axis
+plot(grains)
+hold on
+plot(gBAA(axisGBA),'linecolor','red','linewidth',1.5);
+hold off
+
+
+%% Advanced grain boundary analysis
+
+%This section will show how to pick out very specific grain boundaries
+%where both the misorientation axis and angle are defined.  This can be
+%used for twin identification, which will be shown in another section, but
+%here we will use it to look at the Burgers relationship between the alpha
+%and beta phase.
+
+%We start by defining 4 Miller directions, such that a1//b1 and a2//b2.
+%This will let us define the orienation relationship betweeen alpha and
+%beta phases
+a1=Miller(0,0,0,2,ebsd('Zirconium').CS);
+b1=Miller(1,1,0,ebsd('ZirconiumBeta').CS);
+a2=Miller(1,1,-2,0,ebsd('Zirconium').CS);
+b2=Miller(1,1,1,ebsd('ZirconiumBeta').CS);
+
+%Next, we create an orientation map from alpha to beta based on the sets of
+%parallel directions we just defined.
+ab=orientation('map',a1,b1,a2,b2,ebsd('Zirconium').CS,ebsd('ZirconiumBeta').CS);
+
+%We we now want to get just the grain boundaries that are alpha/beta
+%boundaries
+
+gBAB=grains.boundary('Zirconium','ZirconiumBeta');
+
+%Now we will take all alpha/beta boundaries that have a misorientation
+%within 5 degrees of the relationship we defined
+isBurgers=angle(gBAB.misorientation,ab)<5*degree;
+
+%Finally, we plot the results using conditional indexing:
+
+plot(grains);
+hold on
+plot(gBAB(isBurgers),'linecolor','red','linewidth',1.5);
+hold off
+
+%% Twin Identification
+clear all
+%Twins in Zr and other materials, we sometimes see a lot of twins formed
+%during deformation.  It's really easy to pick out twins from EBSD data
+%with MTEX. The MTEX help page on this is actually pretty good: 
+% http://mtex-toolbox.github.io/files/doc/TwinningAnalysis.html
+
+%First we'll import a dataset from a tensile sample that has been heavily
+%deformed
+import_increment3;
+figure(1)
+plot(ebsd('Zirconium'),ebsd('Zirconium').orientations);
+
+%Now run grain reconstruction.  This map has some poorly indexed points, so
+%we'll get rid of any grains smaller than 3 pixels.
+[grains,ebsd.grainId,ebsd.mis2mean] = calcGrains(ebsd('indexed'),'angle',5*degree);
+
+ebsd(grains(grains.grainSize<3))=[];
+
+[grains,ebsd.grainId,ebsd.mis2mean] = calcGrains(ebsd('indexed'),'angle',5*degree);
+
+%Now we pick out the Zr/Zr grain boundaries:
+
+bounds=grains.boundary;
+
+boundsZr=bounds('Zirconium','Zirconium');
+
+%Now we define the twinning orientation relationship.  In Zr the
+%relationship is as defined below, where t1//t2 and t3//t4
+t1=Miller(1,1,-2,0,ebsd('Zirconium').CS);
+t2=Miller(2,-1,-1,0,ebsd('Zirconium').CS);
+t3=Miller(-1,0,1,1,ebsd('Zirconium').CS);
+t4=Miller(1,0,-1,1,ebsd('Zirconium').CS);
+
+twinning = orientation('map',t1,t2,t3,t4)
+
+%Now we check which grain boundaries are twins by setting a condition to
+%check if the boundary's mistorientation is within 5 degrees of the
+%orientation relationship, then use conditional indexing:
+
+istwinning=angle(twinning,boundsZr.misorientation)<5*degree;
+twinboundaries=boundsZr(istwinning);
+
+%Now plot the data, using the hold command to
+%plot the normal boundaries in black and the twin boundaries overtop in red.
+figure(2)
+plot(ebsd('Zirconium'),ebsd('Zirconium').orientations)
+
+hold on
+plot(grains.boundary,'linewidth',1.5);
+plot(twinboundaries,'linewidth',1.5,'linecolor','red');
+hold off
+
+%If you like, there's a command to merge twins with their parents, so that
+%they will be considered a single grain:
+
+[mergedGrains,parentId] = merge(grains,twinboundaries);
+
+%Now we can plot our merged grain boundaries over the data:
+figure(3)
+plot(ebsd('Zirconium'),ebsd('Zirconium').orientations)
+
+hold on
+plot(mergedGrains.boundary,'linewidth',1.5);
+hold off
+
+%This also lets you see what your untwinned grain size looks like:
+
+median(grains.area)
+
+median(mergedGrains.area)
+
+%Finally, you can get the twin area fraction like this.  First we get the
+%grain id numbers of all the twins.  The unique() function makes sure
+%there's no duplicates.
+
+twinId = unique(boundsZr(istwinning).grainId);
+
+% Next we ge the sum of all the twins, and divide them from the sum of the
+% areas of the entire set of grains
+twinFraction=sum(area(grains(twinId))) / sum(area(grains)) * 100
+
+
+
+##### SOURCE END #####
+--></body></html>
