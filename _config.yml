@@ -1,2 +1,4 @@
 name: Chris Cochrane
 markdown: kramdown
+
+theme: jekyll-theme-minimal
