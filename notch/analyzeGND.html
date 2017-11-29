@@ -1,0 +1,218 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>analyzeGND</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-11-29"><meta name="DC.source" content="analyzeGND.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Demo GND Analysis Script</a></li><li><a href="#2">Allow the user to define the location of the notch.</a></li><li><a href="#3">Caking the Data - By Angle</a></li><li><a href="#4">Caking the Data - By Radius</a></li></ul></div><h2 id="1">Demo GND Analysis Script</h2><p>This script shows one approach to analyzing GND data based on spatial distribution of GNDs.  This was coded to allow for the analysis of notch tip data.</p><pre class="codeinput">load(<span class="string">'Step2.mat'</span>)
+setMTEXpref(<span class="string">'xAxisDirection'</span>,<span class="string">'east'</span>);
+setMTEXpref(<span class="string">'zAxisDirection'</span>,<span class="string">'outOfPlane'</span>);
+</pre><h2 id="2">Allow the user to define the location of the notch.</h2><p>Since the notch might move between EBSD maps, we need an easy way for the user to input the notch location.  This is done graphically, where the user will click the 'edge' of the notch.</p><pre class="codeinput">figure(27), clf
+plot(grains)
+fprintf(<span class="string">'Click on the edge of the notch.'</span>);
+notch = ginput(1);
+theta = atan2(ebsd.y - notch(2), ebsd.x - notch(1));
+theta(theta/degree &lt; -90) = theta(theta/degree &lt; -90) + 2*pi;
+
+hold <span class="string">on</span>, plot(notch(1),notch(2),<span class="string">'xr'</span>,<span class="string">'LineWidth'</span>,5)
+</pre><pre class="codeoutput">Click on the edge of the notch.</pre><img vspace="5" hspace="5" src="analyzeGND_01.png" alt=""> <h2 id="3">Caking the Data - By Angle</h2><p>We may wish to look at how some parameter varies by angle. This section will 'cake' the section by angle, producing slices of angular width 'thetaStep'. Here we look at how the geometric mean of the dislocation density varies by angle.</p><pre class="codeinput">thetaStep = 5;
+<span class="comment">% The user may wish to plot the data as well.</span>
+<span class="comment">%figure(107);</span>
+<span class="comment">%plot(ebsd, GND(7).data), hold on</span>
+<span class="comment">%plot(grains.boundary)</span>
+<span class="keyword">for</span> j = 1:7
+    figure(j), clf
+    realDat = GND(j).data &gt; 0;
+    <span class="keyword">for</span> i = [-thetaStep/2:thetaStep:180+thetaStep/2]
+        cond = (theta &gt; i * degree &amp; theta &lt; (i+ thetaStep) * degree);
+        figure(j), hold <span class="string">on</span>, plot(i + thetaStep/2 - 90, geomean(GND(j).data(cond &amp; realDat')),<span class="string">'ok'</span>,<span class="string">'LineWidth'</span>, 3)
+
+        <span class="comment">% This will plot the boundaries of the cakes on the GND map previously plotted if you're interested.</span>
+        <span class="comment">%     x = ebsd.x(cond); y = ebsd.y(cond);</span>
+        <span class="comment">%     k = convhull(x,y,'simplify', true);</span>
+        <span class="comment">%     figure(107),hold on, plot(x(k), y(k),'k-', 'LineWidth', 2)</span>
+    <span class="keyword">end</span>
+    xlabel(<span class="string">'Angle from Notch (degrees)'</span>)
+    ylabel(<span class="string">'Average Dislocation Density (um^-2)'</span>)
+    title(GND(j).name);
+    axis([-90 90 0 50])
+<span class="keyword">end</span>
+hold <span class="string">off</span>
+</pre><img vspace="5" hspace="5" src="analyzeGND_02.png" alt=""> <img vspace="5" hspace="5" src="analyzeGND_03.png" alt=""> <img vspace="5" hspace="5" src="analyzeGND_04.png" alt=""> <img vspace="5" hspace="5" src="analyzeGND_05.png" alt=""> <img vspace="5" hspace="5" src="analyzeGND_06.png" alt=""> <img vspace="5" hspace="5" src="analyzeGND_07.png" alt=""> <img vspace="5" hspace="5" src="analyzeGND_08.png" alt=""> <h2 id="4">Caking the Data - By Radius</h2><p>This will calculate some values by radius, moving AWAY from the notch. Typically when you're looking at radius, you're also interested in some specific angle, so here we look at 30, 90, and 150 degrees with respect to the notch, with cake widths of 15 degrees.  We will plot the geometric mean of the GND density for every 20 pixels of radius within each cake.</p><pre class="codeinput">radiusStep = 20;
+thetaWidth = 15;
+radius = sqrt((ebsd.y - notch(2)) .^2 + (ebsd.x - notch(1)) .^2);
+
+<span class="comment">%plot(ebsd, GND(7).data)</span>
+<span class="comment">%plot(grains.boundary)</span>
+figure(1972), plot(grains.boundary)
+kk = jet(150);
+<span class="keyword">for</span> tC = [30 90 150]
+    <span class="keyword">for</span> j = 7
+        realDat = GND(j).data &gt; 0;
+        <span class="keyword">for</span> i = radiusStep/2:radiusStep:300
+            cond = (theta &gt; (tC - thetaWidth) * degree &amp; theta &lt; (tC + thetaWidth) * degree) &amp; <span class="keyword">...</span>
+                (radius &gt; i &amp; radius &lt; i + radiusStep);
+            figure(j), hold <span class="string">on</span>, plot(i, geomean(GND(j).data(cond &amp; realDat')),<span class="string">'o'</span>,<span class="string">'LineWidth'</span>, 3, <span class="string">'Color'</span>, kk(tC,:))
+
+
+            x = ebsd.x(cond); y = ebsd.y(cond);
+            k = convhull(x,y);
+            figure(1972), hold <span class="string">on</span>, plot(x(k(2:end)), y(k(2:end)),<span class="string">'-'</span>,<span class="string">'LineWidth'</span>,2, <span class="string">'Color'</span>, kk(tC,:)), hold <span class="string">off</span>
+        <span class="keyword">end</span>
+        figure(j)
+        xlabel(<span class="string">'Distance from Radius (pixels)'</span>)
+        ylabel(<span class="string">'Average Dislocation Density (um^-2)'</span>)
+        title(GND(j).name);
+        figure(j), set(gca, <span class="string">'YScale'</span>, <span class="string">'log'</span>)
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><img vspace="5" hspace="5" src="analyzeGND_09.png" alt=""> <img vspace="5" hspace="5" src="analyzeGND_10.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Demo GND Analysis Script
+% This script shows one approach to analyzing GND data based on spatial
+% distribution of GNDs.  This was coded to allow for the analysis of notch
+% tip data.
+
+load('Step2.mat')
+setMTEXpref('xAxisDirection','east');
+setMTEXpref('zAxisDirection','outOfPlane');
+
+%% Allow the user to define the location of the notch.
+% Since the notch might move between EBSD maps, we need an easy way for the
+% user to input the notch location.  This is done graphically, where the
+% user will click the 'edge' of the notch.  
+figure(27), clf
+plot(grains)
+fprintf('Click on the edge of the notch.');
+notch = ginput(1);
+theta = atan2(ebsd.y - notch(2), ebsd.x - notch(1));
+theta(theta/degree < -90) = theta(theta/degree < -90) + 2*pi;
+
+hold on, plot(notch(1),notch(2),'xr','LineWidth',5)
+%% Caking the Data - By Angle
+% We may wish to look at how some parameter varies by angle.  
+% This section will 'cake' the section by angle, producing slices of angular width 'thetaStep'.
+% Here we look at how the geometric mean of the dislocation density varies by angle.
+
+thetaStep = 5;
+% The user may wish to plot the data as well.
+%figure(107);
+%plot(ebsd, GND(7).data), hold on
+%plot(grains.boundary)
+for j = 1:7
+    figure(j), clf
+    realDat = GND(j).data > 0;
+    for i = [-thetaStep/2:thetaStep:180+thetaStep/2]
+        cond = (theta > i * degree & theta < (i+ thetaStep) * degree);
+        figure(j), hold on, plot(i + thetaStep/2 - 90, geomean(GND(j).data(cond & realDat')),'ok','LineWidth', 3)
+        
+        % This will plot the boundaries of the cakes on the GND map previously plotted if you're interested.
+        %     x = ebsd.x(cond); y = ebsd.y(cond);
+        %     k = convhull(x,y,'simplify', true);
+        %     figure(107),hold on, plot(x(k), y(k),'k-', 'LineWidth', 2)
+    end
+    xlabel('Angle from Notch (degrees)')
+    ylabel('Average Dislocation Density (um^-2)')
+    title(GND(j).name);
+    axis([-90 90 0 50])
+end
+hold off
+%% Caking the Data - By Radius
+% This will calculate some values by radius, moving AWAY from the notch.
+% Typically when you're looking at radius, you're also interested in some
+% specific angle, so here we look at 30, 90, and 150 degrees with respect
+% to the notch, with cake widths of 15 degrees.  We will plot the geometric
+% mean of the GND density for every 20 pixels of radius within each cake.
+radiusStep = 20;
+thetaWidth = 15;
+radius = sqrt((ebsd.y - notch(2)) .^2 + (ebsd.x - notch(1)) .^2);
+
+%plot(ebsd, GND(7).data)
+%plot(grains.boundary)
+figure(1972), plot(grains.boundary)
+kk = jet(150);
+for tC = [30 90 150]
+    for j = 7
+        realDat = GND(j).data > 0;
+        for i = radiusStep/2:radiusStep:300
+            cond = (theta > (tC - thetaWidth) * degree & theta < (tC + thetaWidth) * degree) & ...
+                (radius > i & radius < i + radiusStep);
+            figure(j), hold on, plot(i, geomean(GND(j).data(cond & realDat')),'o','LineWidth', 3, 'Color', kk(tC,:))
+            
+            
+            x = ebsd.x(cond); y = ebsd.y(cond);
+            k = convhull(x,y);
+            figure(1972), hold on, plot(x(k(2:end)), y(k(2:end)),'-','LineWidth',2, 'Color', kk(tC,:)), hold off
+        end
+        figure(j)
+        xlabel('Distance from Radius (pixels)')
+        ylabel('Average Dislocation Density (um^-2)')
+        title(GND(j).name);
+        figure(j), set(gca, 'YScale', 'log')
+    end
+end
+
+##### SOURCE END #####
+--></body></html>

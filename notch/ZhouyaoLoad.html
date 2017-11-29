@@ -1,0 +1,220 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Tutorial script for using the GND Code by Skippon</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-11-17"><meta name="DC.source" content="ZhouyaoLoad.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Tutorial script for using the GND Code by Skippon</h1><!--introduction--><p>This script was made to show a simplified/straightforward approach to using the GND script written by Travis Skippon for the Queen's University Nuclear Materials Research Group. The code can be downloaded from <a href="https://github.com/tskippon/GND">https://github.com/tskippon/GND</a></p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Specify Crystal and Specimen Symmetries</a></li><li><a href="#2">Produce the grain map</a></li><li><a href="#3">Clean up the grain map</a></li><li><a href="#4">Smooth the EBSD data to reduce some of the measurement noise.</a></li><li><a href="#5">Run the GND energy minimization code and produce the GND structure</a></li><li><a href="#6">Save the results and output a summary</a></li></ul></div><h2>Specify Crystal and Specimen Symmetries<a name="1"></a></h2><p>Define the symmetries and load the data. You can use the MTEX data import functionality to read in the EBSD data if you find that more straightforward.  If you use the 'save to m-file' option in the data_import dialog, it will produce some code that looks like the first section here.</p><pre class="codeinput"><span class="comment">% crystal symmetry</span>
+CS = {<span class="keyword">...</span>
+    <span class="string">'notIndexed'</span>,<span class="keyword">...</span>
+  crystalSymmetry(<span class="string">'6/mmm'</span>, [3.232 3.232 5.148], <span class="string">'X||a*'</span>, <span class="string">'Y||b'</span>, <span class="string">'Z||c'</span>, <span class="string">'mineral'</span>, <span class="string">'Zirconium - alpha'</span>, <span class="string">'color'</span>, <span class="string">'light blue'</span>),<span class="keyword">...</span>
+  crystalSymmetry(<span class="string">'m-3m'</span>, [3.62 3.62 3.62], <span class="string">'mineral'</span>, <span class="string">'Zirconium beta'</span>, <span class="string">'color'</span>, <span class="string">'light green'</span>),<span class="keyword">...</span>
+  crystalSymmetry(<span class="string">'m-3m'</span>, [4.51 4.51 4.51], <span class="string">'mineral'</span>, <span class="string">'ZrH-delta'</span>, <span class="string">'color'</span>, <span class="string">'light red'</span>),<span class="keyword">...</span>
+  crystalSymmetry(<span class="string">'4/m'</span>, [4.596 4.51 4.51], <span class="string">'mineral'</span>, <span class="string">'ZrH-gamma-2'</span>, <span class="string">'color'</span>, <span class="string">'cyan'</span>)};
+
+<span class="comment">% plotting convention</span>
+setMTEXpref(<span class="string">'xAxisDirection'</span>,<span class="string">'west'</span>);
+setMTEXpref(<span class="string">'zAxisDirection'</span>,<span class="string">'outOfPlane'</span>);
+
+<span class="comment">% path to files</span>
+<span class="comment">% pname = '/home/chris/Zhouyao/';</span>
+
+<span class="comment">% which files to be imported</span>
+fname = [<span class="string">'EBSDofN2Sample-Step1-bigMap.ctf'</span>];
+
+<span class="comment">% create an EBSD variable containing the data</span>
+ebsd = loadEBSD(fname,CS,<span class="string">'interface'</span>,<span class="string">'ctf'</span>,<span class="keyword">...</span>
+  <span class="string">'convertEuler2SpatialReferenceFrame'</span>);
+</pre><h2>Produce the grain map<a name="2"></a></h2><p>This will clean up the input data (removing all non-Zr Alpha data points) and then determine the grain structure.  Grain boundaries are defined here as regions where the misorientation is greater than 5 degrees.</p><pre class="codeinput">ebsd(ebsd.phase&gt;1) = [];
+[grains,ebsd.grainId,ebsd.mis2mean] = calcGrains(ebsd,<span class="string">'angle'</span>,5*degree);
+plot(ebsd)
+hold <span class="string">on</span>
+plot(grains.boundary,<span class="string">'linewidth'</span>,1.5)
+</pre><img vspace="5" hspace="5" src="ZhouyaoLoad_01.png" alt=""> <h2>Clean up the grain map<a name="3"></a></h2><p>Depending on how well the indexing goes during the scan, there may be some small areas of unindexed or incorrectly indexed pixels. We want to remove those areas because they do not represent the actual microstructure.  Here we remove any grains with a grainSize less than 3.</p><pre class="codeinput">ebsd(grains(grains.grainSize&lt;3))=[];
+[grains,ebsd.grainId,ebsd.mis2mean] = calcGrains(ebsd,<span class="string">'angle'</span>,5*degree);
+plot(ebsd)
+hold <span class="string">on</span>
+plot(grains.boundary,<span class="string">'linewidth'</span>,1.5)
+</pre><img vspace="5" hspace="5" src="ZhouyaoLoad_02.png" alt=""> <h2>Smooth the EBSD data to reduce some of the measurement noise.<a name="4"></a></h2><p>We want to smooth the data slightly so that the GND calculation is not affected by measurement noise.</p><pre class="codeinput">ebsd=smooth(ebsd,infimalConvolutionFilter);
+</pre><h2>Run the GND energy minimization code and produce the GND structure<a name="5"></a></h2><pre class="codeinput">[disArray systems]=GND_auto(ebsd,4,[0.34]);
+GND=sum_dislocations(disArray,systems,ebsd);
+</pre><pre class="codeoutput">Starting parallel pool (parpool) using the 'local' profile ... connected to 4 workers.
+Calculating Curvatures...
+Curvature calculations complete!
+Minimizing dislocation energy...
+Estimated time to completion: 00:05:46.
+Minimization complete!
+Actual time taken was 01:40:53.  Estimate was off by -1647.6%
+</pre><h2>Save the results and output a summary<a name="6"></a></h2><p>It's a good idea to save your matlab state at this stage. The GND code takes a long time to run, so you don't want the results to all disappear if MATLAB crashes or your computer decides it needs to restart to install updates.</p><pre class="codeinput">save(<span class="string">'Step1.mat'</span>);
+
+<span class="comment">% Having a quick summary of the results is good for identifying what your</span>
+<span class="comment">% next steps should be.  This loops through the GND structure and outputs</span>
+<span class="comment">% the name and total average density of each slip system.  We use the</span>
+<span class="comment">% geometric mean (geomean) because dislocation density is log-normally</span>
+<span class="comment">% distributed.</span>
+
+fprintf(<span class="string">' --- Summary of GND Results --- \n'</span>);
+<span class="keyword">for</span> i = 1:length(GND)
+    fprintf(<span class="string">'%10s - %15s: %f\n'</span>,ebsd(ebsd.phase==GND(i).phase).mineral,GND(i).name,geomean(GND(i).data(GND(i).data&gt;0)));
+<span class="keyword">end</span>
+</pre><pre class="codeoutput"> --- Summary of GND Results --- 
+Zirconium - alpha -        Prism&lt;a&gt;: 0.419954
+Zirconium - alpha -        screw&lt;a&gt;: 1.661605
+Zirconium - alpha -        basal&lt;a&gt;: 0.481719
+Zirconium - alpha -  Pyramidal&lt;c+a&gt;: 2.163750
+Zirconium - alpha - Pyramidal2&lt;c+a&gt;: NaN
+Zirconium - alpha -      screw&lt;c+a&gt;: 0.510771
+Zirconium - alpha -           total: 3.579552
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Tutorial script for using the GND Code by Skippon
+%
+% This script was made to show a simplified/straightforward approach to
+% using the GND script written by Travis Skippon for the Queen's University
+% Nuclear Materials Research Group.
+% The code can be downloaded from <https://github.com/tskippon/GND>
+
+%% Specify Crystal and Specimen Symmetries
+%
+% Define the symmetries and load the data.
+% You can use the MTEX data import functionality to read in the EBSD data
+% if you find that more straightforward.  If you use the 'save to m-file'
+% option in the data_import dialog, it will produce some code that looks
+% like the first section here.
+
+% crystal symmetry
+CS = {... 
+    'notIndexed',...
+  crystalSymmetry('6/mmm', [3.232 3.232 5.148], 'X||a*', 'Y||b', 'Z||c', 'mineral', 'Zirconium - alpha', 'color', 'light blue'),...
+  crystalSymmetry('m-3m', [3.62 3.62 3.62], 'mineral', 'Zirconium beta', 'color', 'light green'),...
+  crystalSymmetry('m-3m', [4.51 4.51 4.51], 'mineral', 'ZrH-delta', 'color', 'light red'),...
+  crystalSymmetry('4/m', [4.596 4.51 4.51], 'mineral', 'ZrH-gamma-2', 'color', 'cyan')};
+
+% plotting convention
+setMTEXpref('xAxisDirection','west');
+setMTEXpref('zAxisDirection','outOfPlane');
+
+% path to files
+% pname = '/home/chris/Zhouyao/';
+
+% which files to be imported
+fname = ['EBSDofN2Sample-Step1-bigMap.ctf'];
+
+% create an EBSD variable containing the data
+ebsd = loadEBSD(fname,CS,'interface','ctf',...
+  'convertEuler2SpatialReferenceFrame');
+
+%% Produce the grain map
+% This will clean up the input data (removing all non-Zr Alpha data points)
+% and then determine the grain structure.  Grain boundaries are defined
+% here as regions where the misorientation is greater than 5 degrees.  
+
+ebsd(ebsd.phase>1) = [];
+[grains,ebsd.grainId,ebsd.mis2mean] = calcGrains(ebsd,'angle',5*degree);
+plot(ebsd)
+hold on
+plot(grains.boundary,'linewidth',1.5)
+%% Clean up the grain map
+% Depending on how well the indexing goes during the scan, there may be
+% some small areas of unindexed or incorrectly indexed pixels.  
+% We want to remove those areas because they do not represent the actual 
+% microstructure.  Here we remove any grains with a grainSize less than 3.
+
+ebsd(grains(grains.grainSize<3))=[];
+[grains,ebsd.grainId,ebsd.mis2mean] = calcGrains(ebsd,'angle',5*degree);
+plot(ebsd)
+hold on
+plot(grains.boundary,'linewidth',1.5)
+%% Smooth the EBSD data to reduce some of the measurement noise.
+% We want to smooth the data slightly so that the GND calculation is not
+% affected by measurement noise.  
+
+ebsd=smooth(ebsd,infimalConvolutionFilter);
+
+%% Run the GND energy minimization code and produce the GND structure
+
+[disArray systems]=GND_auto(ebsd,4,[0.34]);
+GND=sum_dislocations(disArray,systems,ebsd);
+%% Save the results and output a summary
+% It's a good idea to save your matlab state at this stage.
+% The GND code takes a long time to run, so you don't want the results to
+% all disappear if MATLAB crashes or your computer decides it needs to
+% restart to install updates.
+
+save('Step1.mat');
+
+% Having a quick summary of the results is good for identifying what your
+% next steps should be.  This loops through the GND structure and outputs
+% the name and total average density of each slip system.  We use the
+% geometric mean (geomean) because dislocation density is log-normally
+% distributed.
+
+fprintf(' REPLACE_WITH_DASH_DASH- Summary of GND Results REPLACE_WITH_DASH_DASH- \n');
+for i = 1:length(GND)
+    fprintf('%10s - %15s: %f\n',ebsd(ebsd.phase==GND(i).phase).mineral,GND(i).name,geomean(GND(i).data(GND(i).data>0)));
+end
+
+##### SOURCE END #####
+--></body></html>
